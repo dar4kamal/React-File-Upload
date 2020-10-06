@@ -1,23 +1,46 @@
 import React, { Fragment, useState } from "react";
 import axios from "axios";
+import Message from "./Message";
 
 const FileUpload = () => {
 	const [file, setFile] = useState("");
 	const [filename, setFilename] = useState("Choose File");
+	const [uploadedFile, setUploadedFile] = useState({});
+	const [message, setMessage] = useState("");
 
 	const onChange = (e) => {
 		setFile(e.target.files[0]);
 		setFilename(e.target.files[0].name);
 	};
 
-	const onSubmit = (e) => {
+	const onSubmit = async (e) => {
 		e.preventDefault();
 		const formData = new FormData();
 		formData.append("file", file);
-		console.log(formData);
+		try {
+			const res = await axios.post("/upload", formData, {
+				headers: {
+					"Content-Type": "multipart/form-data",
+				},
+			});
+
+			const { fileName, filePath } = res.data;
+			setUploadedFile({ fileName, filePath });
+			setMessage("File Uploaded Successfully");
+			setTimeout(() => {
+				setMessage("");
+			}, 5000);
+		} catch (err) {
+			if (err.response.status === 500)
+				setMessage("There Is a problem in Server");
+			else setMessage(err.response.data.msg);
+		}
 	};
 	return (
 		<Fragment>
+			{message !== "" ? (
+				<Message className="bg-primary mt-3 mb-2 " msg={message} />
+			) : null}
 			<form onSubmit={onSubmit}>
 				<div className="custom-file mb-4">
 					<input
@@ -36,6 +59,14 @@ const FileUpload = () => {
 					/>
 				</div>
 			</form>
+			{uploadedFile ? (
+				<div className="row mt-5">
+					<div className="col-md-6 m-auto text-center">
+						<h3 className="text-center">{uploadedFile.fileName}</h3>
+						<img style={{ width: "100%" }} src={uploadedFile.filePath} alt="" />
+					</div>
+				</div>
+			) : null}
 		</Fragment>
 	);
 };

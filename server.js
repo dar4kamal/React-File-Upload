@@ -12,14 +12,15 @@ app.post("/upload", (req, res) => {
 		return res.status(400).json({ msg: "No file uploaded" });
 
 	const file = req.files.file;
-	file.mv(`${__dirname}/client/public/uploads/${file.name}`, (err) => {
+	const filename = `${Date.now()}-${file.name}`;
+	file.mv(`${__dirname}/client/public/uploads/${filename}`, (err) => {
 		if (err) {
 			console.error(err);
 			return res.status(500).send(err);
 		}
 	});
 
-	res.json({ filename: file.name, filePath: `uploads/${file.name}` });
+	res.json({ fileName: file.name, filePath: `uploads/${filename}` });
 });
 
 app.listen(PORT, () => {
