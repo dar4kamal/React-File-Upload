@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from "react";
 import axios from "axios";
 import Message from "./Message";
+import Progress from "./Progress";
 
 const FileUpload = () => {
 	const [file, setFile] = useState("");
@@ -29,7 +30,7 @@ const FileUpload = () => {
 					);
 					setUploadPercentge(uploadPercentage);
 					// clear progress
-					setTimeout(() => setUploadPercentge(0), 10000);
+					setTimeout(() => setUploadPercentge(0), 5000);
 				},
 			});
 
@@ -38,6 +39,9 @@ const FileUpload = () => {
 			setMessage("File Uploaded Successfully");
 			setTimeout(() => {
 				setMessage("");
+				setFile("");
+				setFilename("");
+				setUploadedFile({});
 			}, 5000);
 		} catch (err) {
 			if (err.response.status === 500)
@@ -50,17 +54,19 @@ const FileUpload = () => {
 			{message !== "" ? (
 				<Message className="bg-primary mt-3 mb-2 " msg={message} />
 			) : null}
+
 			<form onSubmit={onSubmit}>
 				<div className="custom-file mb-4">
 					<input
 						type="file"
-						className="custom-file-input"
+						className="custom-file-input mb-3"
 						id="customFile"
 						onChange={onChange}
 					/>
 					<label className="custom-file-label" htmlFor="customFile">
 						{filename}
 					</label>
+					<Progress percentage={uploadPercentage} />
 					<input
 						type="submit"
 						value="Upload"
@@ -68,6 +74,7 @@ const FileUpload = () => {
 					/>
 				</div>
 			</form>
+
 			{uploadedFile ? (
 				<div className="row mt-5">
 					<div className="col-md-6 m-auto text-center">
